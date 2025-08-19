@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>حساب زاوية ارتفاع الشمس</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        input { margin: 5px; padding: 5px; width: 100px; }
+        button { padding: 10px 20px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>حساب زاوية ارتفاع الشمس (Beta)</h1>
+    <div>
+        <input type="number" id="lat" placeholder="خط العرض">
+        <input type="number" id="lon" placeholder="خط الطول">
+    </div>
+    <div>
+        <input type="number" id="year" placeholder="السنة">
+        <input type="number" id="month" placeholder="الشهر">
+        <input type="number" id="day" placeholder="اليوم">
+    </div>
+    <div>
+        <input type="number" id="hour" placeholder="الساعة">
+        <input type="number" id="minute" placeholder="الدقيقة">
+        <input type="number" id="second" placeholder="الثانية">
+    </div>
+    <button onclick="calculate()">احسب زاوية الشمس</button>
+    <h2 id="result"></h2>
+
+    <script>
+        function calculate() {
+            let lat = parseFloat(document.getElementById('lat').value);
+            let lon = parseFloat(document.getElementById('lon').value);
+            let year = parseInt(document.getElementById('year').value);
+            let month = parseInt(document.getElementById('month').value);
+            let day = parseInt(document.getElementById('day').value);
+            let hour = parseInt(document.getElementById('hour').value);
+            let minute = parseInt(document.getElementById('minute').value);
+            let second = parseInt(document.getElementById('second').value);
+
+            let dt = new Date(Date.UTC(year, month-1, day, hour, minute, second));
+            let n = (dt - new Date(Date.UTC(2000,0,1,12,0,0))) / 86400000;
+
+            let L = (280.460 + 0.9856474 * n) % 360;
+            let g = (357.528 + 0.9856003 * n) * Math.PI / 180;
+            let lambda_sun = (L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2*g)) * Math.PI / 180;
+            let epsilon = (23.439 - 0.0000004 * n) * Math.PI / 180;
+            let delta = Math.asin(Math.sin(epsilon) * Math.sin(lambda_sun));
+
+            let lst = hour + minute/60 + second/3600 + lon/15;
+            let H = (15 * (lst - 12)) * Math.PI / 180;
+
+            let lat_rad = lat * Math.PI / 180;
+            let beta = Math.asin(Math.sin(lat_rad)*Math.sin(delta) + Math.cos(lat_rad)*Math.cos(delta)*Math.cos(H));
+            beta = beta * 180 / Math.PI;
+
+            document.getElementById('result').innerText = `زاوية ارتفاع الشمس (Beta) = ${beta.toFixed(2)}°`;
+        }
+    </script>
+</body>
+</html>
